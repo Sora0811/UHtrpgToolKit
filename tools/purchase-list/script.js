@@ -122,8 +122,8 @@ function renderItems() {
     tbody.appendChild(tr);
   });
 
-  tbody.querySelectorAll('input[data-idx]').forEach(inp => {
-    on(inp, 'input', e => {
+  tbody.querySelectorAll('input[data-idx], select[data-idx]').forEach(inp => {
+    on(inp, inp.tagName === 'SELECT' ? 'change' : 'input', e => {
       const idx = parseInt(e.target.dataset.idx);
       const field = e.target.dataset.field;
       items[idx][field] = e.target.value;
@@ -161,8 +161,13 @@ function updateSubtotal() {
 
   // 小計顯示剩餘（擁有 - 預計）
   $('#subtotal-branch').textContent = (remBranchVal !== null)
-    ? `${valueToBranchStr(remBranchVal)} (剩餘)`
+    ? valueToBranchStr(Math.abs(remBranchVal < 0 ? remBranchVal : 0)) || '0'
     : '—';
+  if (remBranchVal !== null && remBranchVal < 0) {
+    $('#subtotal-branch').textContent = valueToBranchStr(Math.abs(remBranchVal)) + ' (缺少)';
+  } else if (remBranchVal !== null) {
+    $('#subtotal-branch').textContent = valueToBranchStr(remBranchVal) + ' (剩餘)';
+  }
   $('#subtotal-points').textContent = remPoints;
   $('#subtotal-xp').textContent = remXp;
 
@@ -174,14 +179,14 @@ function updateSubtotal() {
   const bal = $('#balance');
   if (remBranchVal !== null && remBranchVal >= 0 && remPoints >= 0 && remXp >= 0) {
     bal.textContent = '餘額充足';
-    bal.className = 'note balance-ok';
+    bal.className = 'note';
   } else {
     let msg = '餘額不足，還缺：';
     if (shortBranch) msg += ` 支線 ${shortBranch}`;
     if (shortPoints > 0) msg += ` 分數 ${shortPoints}`;
     if (shortXp > 0) msg += ` XP ${shortXp}`;
     bal.textContent = msg;
-    bal.className = 'note balance-bad';
+    bal.className = 'note';
   }
 }
 
