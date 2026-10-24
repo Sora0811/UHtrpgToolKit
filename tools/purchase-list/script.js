@@ -3,19 +3,13 @@ import { $, on } from '../../shared/common.js';
 let items = [];
 
 // 轉換規則：3個D=C, 3個C=B, 3個B=A, 3個A=S
-// D=1, C=3, B=9, A=27, S=81 (3×A)
-// 雙支線 = 2×單支線
 const BRANCH_CHAIN = ['D', 'C', 'B', 'A', 'S'];
 const BRANCH_VALUE = {};
 BRANCH_CHAIN.forEach((b, i) => { BRANCH_VALUE[b] = Math.pow(3, i); });
-// S = 3×A = 81
 BRANCH_VALUE['S'] = BRANCH_VALUE['A'] * 3;
-// 雙支線
 ['D','C','B','A'].forEach(b => { BRANCH_VALUE[b+b] = BRANCH_VALUE[b] * 2; });
 BRANCH_VALUE['SS'] = BRANCH_VALUE['S'] * 2;
-// AAA = 3×A = S
 BRANCH_VALUE['AAA'] = BRANCH_VALUE['S'];
-// AA = 2×A
 BRANCH_VALUE['AA'] = BRANCH_VALUE['A'] * 2;
 
 function parseBranchStr(str) {
@@ -49,14 +43,12 @@ function valueToBranchStr(val) {
   if (val <= 0) return '0';
   const result = [];
   let remaining = val;
-  // S 優先（再往上不用轉換）
   const sVal = BRANCH_VALUE['S'];
   while (remaining >= sVal - 0.001) {
     result.push('S');
     remaining -= sVal;
     if (remaining < 0.001) break;
   }
-  // 從大到小拆解
   const sorted = [...BRANCH_CHAIN].filter(b => b !== 'S').sort((a, b) => BRANCH_VALUE[b] - BRANCH_VALUE[a]);
   for (const b of sorted) {
     const v = BRANCH_VALUE[b];
@@ -128,7 +120,7 @@ function renderItems() {
           <input type="number" data-idx="${idx}" data-field="xp" value="${item.xp || 0}" min="0">
         </div>
         <div style="flex:0 0 auto;">
-          <button class="danger" data-remove="${idx}" style="margin-top:1.2rem;">刪除</button>
+          <button class="danger" data-remove="${idx}" style="margin-top:1.2rem;">−</button>
         </div>
       </div>
     `;
@@ -172,18 +164,28 @@ function updateSubtotal() {
   const remPoints = ownPoints - totalPoints;
   const remXp = ownXp - totalXp;
 
+  // 小計顯示剩餘（擁有 - 預計）
   $('#subtotal-branch').textContent = (remBranchVal !== null)
     ? `${valueToBranchStr(remBranchVal)} (剩餘)`
     : '—';
   $('#subtotal-points').textContent = remPoints;
   $('#subtotal-xp').textContent = remXp;
 
+  // 差額（不足時顯示還缺多少）
+  const shortBranch = (remBranchVal !== null && remBranchVal < 0) ? valueToBranchStr(Math.abs(remBranchVal)) : null;
+  const shortPoints = remPoints < 0 ? Math.abs(remPoints) : 0;
+  const shortXp = remXp < 0 ? Math.abs(remXp) : 0;
+
   const bal = $('#balance');
   if (remBranchVal !== null && remBranchVal >= 0 && remPoints >= 0 && remXp >= 0) {
     bal.textContent = '餘額充足';
     bal.className = 'note balance-ok';
   } else {
-    bal.textContent = '餘額不足';
+    let msg = '餘額不足，還缺：';
+    if (shortBranch) msg += ` 支線 ${shortBranch}`;
+    if (shortPoints > 0) msg += ` 分數 ${shortPoints}`;
+    if (shortXp > 0) msg += ` XP ${shortXp}`;
+    bal.textContent = msg;
     bal.className = 'note balance-bad';
   }
 }
