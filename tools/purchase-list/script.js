@@ -5,6 +5,10 @@ let items = [];
 const BRANCH_CHAIN = ['D', 'C', 'B', 'A', 'AA', 'AAA', 'S'];
 const BRANCH_VALUE = {};
 BRANCH_CHAIN.forEach((b, i) => { BRANCH_VALUE[b] = Math.pow(3, i); });
+// 雙支線
+['D','C','B','A'].forEach(b => { BRANCH_VALUE[b+b] = BRANCH_VALUE[b] * 2; });
+// AAA = S (使用者指定：AAA 視為 S)
+BRANCH_VALUE['AAA'] = BRANCH_VALUE['S'];
 
 // 貪婪解析：從左到右，優先匹配最長的支線標籤
 function parseBranchStr(str) {
@@ -37,17 +41,17 @@ function branchStrToValue(str) {
 
 function valueToBranchStr(val) {
   if (val <= 0) return '0';
-  // 貪婪拆解為最大支線
   const result = [];
   let remaining = val;
-  // S 以上都算 S
+  // S 以上都算 S（AAA 視為 S）
   const sVal = BRANCH_VALUE['S'];
-  while (remaining >= sVal) {
+  while (remaining >= sVal - 0.001) {
     result.push('S');
     remaining -= sVal;
+    if (remaining < 0.001) break;
   }
-  // 從大到小拆解
-  const sorted = [...BRANCH_CHAIN].sort((a, b) => BRANCH_VALUE[b] - BRANCH_VALUE[a]);
+  // 從大到小拆解（排除 S 和 AAA，因為已處理）
+  const sorted = [...BRANCH_CHAIN].filter(b => b !== 'S' && b !== 'AAA').sort((a, b) => BRANCH_VALUE[b] - BRANCH_VALUE[a]);
   for (const b of sorted) {
     const v = BRANCH_VALUE[b];
     while (remaining >= v - 0.001) {

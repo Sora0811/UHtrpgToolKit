@@ -16,7 +16,7 @@
     <!-- 屬性 -->
     <section class="card">
       <h2>屬性購買</h2>
-      <p class="note">提升 1 點屬性：分數 = 當前屬性 × 200；經驗 = 當前屬性 × 4 XP</p>
+      <p class="note">提升 1 點屬性：分數 = 當前屬性 × 200；經驗 = 當前屬性 × 4 XP；0→1 與 1→2 相同</p>
       <label for="attr-mode">計算模式</label>
       <select id="attr-mode">
         <option value="xp">經驗 (XP)</option>
@@ -83,29 +83,18 @@
       <p id="feat-result" class="note result">—</p>
     </section>
 
-    <!-- 購買清單連動 -->
+    <!-- 造物 -->
     <section class="card">
-      <h2>加入購買清單</h2>
-      <p class="note">將目前計算的結果加入購買清單（localStorage）</p>
-      <div class="row">
-        <div>
-          <label for="add-category">分類</label>
-          <input id="add-category" type="text" value="" placeholder="如 屬性">
-        </div>
-        <div>
-          <label for="add-name">項目</label>
-          <input id="add-name" type="text" value="" placeholder="如 力量">
-        </div>
-        <div>
-          <label for="add-target">購買目標</label>
-          <input id="add-target" type="text" value="" placeholder="如 1>5">
-        </div>
-      </div>
-      <div class="row" style="margin-top:0.75rem;">
-        <button id="add-to-list">加入購買清單</button>
-      </div>
-      <p id="add-status" class="note"></p>
+      <h2>造物規則</h2>
+      <p class="note">圖紙 = 支線 × 分數 / 100；材料 = 分數 / 3；製造 DC = 支線 × 分數 / 100 (向上取整)</p>
+      <label for="craft-branch">支線等級 (D/C/B/A/S，可雙支線如 DD)</label>
+      <input id="craft-branch" type="text" value="D" placeholder="D">
+      <label for="craft-points">分數</label>
+      <input id="craft-points" type="number" min="0" value="500">
+      <p id="craft-result" class="note result">—</p>
+      <p id="craft-warn" class="note warn" hidden>支線等級格式錯誤</p>
     </section>
+  </main>
   <script type="module" src="script.js"></script>
 </body>
 </html>
