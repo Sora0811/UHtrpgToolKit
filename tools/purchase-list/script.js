@@ -343,7 +343,7 @@ try {
   console.error('Init error:', e);
 }
 
-on(#add-item, 'click', () => {
+on($('#add-item'), 'click', () => {
   try {
     items.push({ category: '', name: '', target: '', branch: '', points: 0, xp: 0 });
     save();
