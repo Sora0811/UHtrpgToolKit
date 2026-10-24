@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>購買計算器 — UH TRPG Tool Library</title>
+  <link rel="stylesheet" href="../../shared/styles.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="container">
+    <p><a href="../../index.html">← Library</a></p>
+    <h1>購買計算器</h1>
+    <p class="lead">屬性、技能、資源、專長與造物的購買/經驗計算。輸入即時更新。</p>
+
+    <!-- 屬性 -->
+    <section class="card">
+      <h2>屬性購買</h2>
+      <p class="note">提升 1 點屬性：分數 = 當前屬性 × 200；經驗 = 當前屬性 × 4 XP</p>
+      <label for="attr-mode">計算模式</label>
+      <select id="attr-mode">
+        <option value="xp">經驗 (XP)</option>
+        <option value="points">分數</option>
+      </select>
+      <label for="attr-current">當前屬性值</label>
+      <div class="input-pair">
+        <input id="attr-current" type="range" min="0" max="99" value="1">
+        <input id="attr-current-num" type="number" min="0" max="99" value="1">
+      </div>
+      <label for="attr-target">目標屬性值</label>
+      <div class="input-pair">
+        <input id="attr-target" type="range" min="0" max="99" value="2">
+        <input id="attr-target-num" type="number" min="0" max="99" value="2">
+      </div>
+      <p id="attr-result" class="note result">—</p>
+      <p id="attr-warn" class="note warn" hidden>目標值必須大於當前值</p>
+    </section>
+
+    <!-- 技能 -->
+    <section class="card">
+      <h2>技能購買</h2>
+      <p class="note">提升 1 級技能 = (當前等級 − 1) × 2 XP；0→1 = 3 XP；1→2 = 1 XP</p>
+      <label for="skill-current">當前等級</label>
+      <div class="input-pair">
+        <input id="skill-current" type="range" min="0" max="15" value="0">
+        <input id="skill-current-num" type="number" min="0" max="15" value="0">
+      </div>
+      <label for="skill-target">目標等級</label>
+      <div class="input-pair">
+        <input id="skill-target" type="range" min="0" max="15" value="1">
+        <input id="skill-target-num" type="number" min="0" max="15" value="1">
+      </div>
+      <p id="skill-result" class="note result">—</p>
+      <p id="skill-warn" class="note warn" hidden>目標等級必須大於當前等級</p>
+    </section>
+
+    <!-- 資源 -->
+    <section class="card">
+      <h2>資源購買 (支線 → 經驗)</h2>
+      <p class="note">XP = 支線等級² × 4 + 支線等級 × 6 + 獎勵點數/400 (向上取整)；雙支線 +0.5 (DD=1.5)</p>
+      <label for="res-branch">支線等級 (D/C/B/A/S，可雙支線如 DD)</label>
+      <input id="res-branch" type="text" value="D" placeholder="D">
+      <label for="res-points">獎勵點數 (分數)</label>
+      <input id="res-points" type="number" min="0" value="0">
+      <p id="res-result" class="note result">轉換成經驗：—</p>
+      <p id="res-warn" class="note warn" hidden>支線等級格式錯誤</p>
+    </section>
+
+    <!-- 專長 -->
+    <section class="card">
+      <h2>專長購買</h2>
+      <p class="note">一般專長 = 等級 × 3 XP；輪迴隊專長 = 等級 × 6 XP</p>
+      <label for="feat-type">類型</label>
+      <select id="feat-type">
+        <option value="normal">一般專長</option>
+        <option value="team">輪迴隊專長</option>
+      </select>
+      <label for="feat-level">購買等級</label>
+      <div class="input-pair">
+        <input id="feat-level" type="range" min="1" max="10" value="1">
+        <input id="feat-level-num" type="number" min="1" max="10" value="1">
+      </div>
+      <p id="feat-result" class="note result">—</p>
+    </section>
+
+    <!-- 造物 -->
+    <section class="card">
+      <h2>造物規則</h2>
+      <p class="note">圖紙 = 支線 × 分數 / 100；材料 = 分數 / 3；製造 DC = 支線 × 分數 / 100 (向上取整)</p>
+      <label for="craft-branch">支線等級 (D/C/B/A/S，可雙支線如 DD)</label>
+      <input id="craft-branch" type="text" value="D" placeholder="D">
+      <label for="craft-points">分數</label>
+      <input id="craft-points" type="number" min="0" value="500">
+      <p id="craft-result" class="note result">—</p>
+      <p id="craft-warn" class="note warn" hidden>支線等級格式錯誤</p>
+    </section>
+  </main>
+  <script type="module" src="script.js"></script>
+</body>
+</html>

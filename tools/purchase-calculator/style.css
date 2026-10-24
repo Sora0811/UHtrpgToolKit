@@ -1,0 +1,6 @@
+.tabs { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0; }
+.tab { background: #eaeef2; color: var(--fg); }
+.tab.active { background: var(--accent); color: #fff; }
+.tab-panel[hidden] { display: none; }
+.warn { color: #9a6700; }
+.result { font-weight: 600; }
