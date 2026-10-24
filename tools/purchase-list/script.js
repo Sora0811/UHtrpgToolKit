@@ -159,19 +159,16 @@ function updateSubtotal() {
   const remPoints = ownPoints - totalPoints;
   const remXp = ownXp - totalXp;
 
-  // 小計顯示剩餘（擁有 - 預計）
-  $('#subtotal-branch').textContent = (remBranchVal !== null)
-    ? valueToBranchStr(Math.abs(remBranchVal < 0 ? remBranchVal : 0)) || '0'
-    : '—';
   if (remBranchVal !== null && remBranchVal < 0) {
     $('#subtotal-branch').textContent = valueToBranchStr(Math.abs(remBranchVal)) + ' (缺少)';
   } else if (remBranchVal !== null) {
     $('#subtotal-branch').textContent = valueToBranchStr(remBranchVal) + ' (剩餘)';
+  } else {
+    $('#subtotal-branch').textContent = '—';
   }
   $('#subtotal-points').textContent = remPoints;
   $('#subtotal-xp').textContent = remXp;
 
-  // 差額（不足時顯示還缺多少）
   const shortBranch = (remBranchVal !== null && remBranchVal < 0) ? valueToBranchStr(Math.abs(remBranchVal)) : null;
   const shortPoints = remPoints < 0 ? Math.abs(remPoints) : 0;
   const shortXp = remXp < 0 ? Math.abs(remXp) : 0;
@@ -198,7 +195,7 @@ function saveBranch() {
   localStorage.setItem('purchase-branches', JSON.stringify(branches));
   $('#branch-name').value = '';
   renderBranches();
-  alert(`已儲存分支「${name}」`);
+  alert('已儲存分支「' + name + '」');
 }
 
 function renderBranches() {
@@ -206,9 +203,9 @@ function renderBranches() {
   const container = $('#branches-list');
   container.innerHTML = '';
   Object.keys(branches).forEach(name => {
-    const items = branches[name];
+    const branchItems = branches[name];
     let totalBranchVal = 0, totalPoints = 0, totalXp = 0;
-    items.forEach(item => {
+    branchItems.forEach(item => {
       const bv = branchStrToValue(item.branch);
       if (bv !== null) totalBranchVal += bv;
       totalPoints += parseInt(item.points) || 0;
@@ -219,7 +216,7 @@ function renderBranches() {
     div.innerHTML = `
       <div class="item-row" style="align-items:center;">
         <div style="flex:1;">
-          <strong>${name}</strong> (${items.length} 項)<br>
+          <strong>${name}</strong> (${branchItems.length} 項)<br>
           <span class="note">預計支出：支線 ${valueToBranchStr(totalBranchVal)}、分數 ${totalPoints}、XP ${totalXp}</span>
         </div>
         <div style="flex:0 0 auto;">
@@ -238,7 +235,6 @@ function renderBranches() {
       save();
       renderItems();
       updateSubtotal();
-      // Switch to list tab
       document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
       document.querySelectorAll('.tab-panel').forEach(p => p.hidden = true);
       document.querySelector('.tab[data-tab="list"]').classList.add('active');
@@ -248,7 +244,7 @@ function renderBranches() {
   container.querySelectorAll('button[data-del]').forEach(btn => {
     on(btn, 'click', e => {
       const name = e.target.dataset.del;
-      if (confirm(`刪除分支「${name}」？`)) {
+      if (confirm('刪除分支「' + name + '」？')) {
         const branches = JSON.parse(localStorage.getItem('purchase-branches') || '{}');
         delete branches[name];
         localStorage.setItem('purchase-branches', JSON.stringify(branches));
@@ -262,9 +258,9 @@ on($('#copy-clipboard'), 'click', async () => {
   const ownBranch = $('#own-branch').value;
   const ownPoints = $('#own-points').value;
   const ownXp = $('#own-xp').value;
-  let text = `【目前擁有】支線:${ownBranch} 分數:${ownPoints} XP:${ownXp}\n\n【預計購買項目】\n`;
+  let text = '【目前擁有】支線:' + ownBranch + ' 分數:' + ownPoints + ' XP:' + ownXp + '\n\n【預計購買項目】\n';
   items.forEach((item, i) => {
-    text += `${i+1}. [${item.category || '—'}] ${item.name || '—'} 目標:${item.target || '—'} 支線:${item.branch || '—'} 分數:${item.points || 0} XP:${item.xp || 0}\n`;
+    text += (i+1) + '. [' + (item.category || '—') + '] ' + (item.name || '—') + ' 目標:' + (item.target || '—') + ' 支線:' + (item.branch || '—') + ' 分數:' + (item.points || 0) + ' XP:' + (item.xp || 0) + '\n';
   });
   const bv = branchStrToValue(ownBranch);
   let totalBranchVal = 0, totalPoints = 0, totalXp = 0;
@@ -274,12 +270,11 @@ on($('#copy-clipboard'), 'click', async () => {
     totalPoints += parseInt(item.points) || 0;
     totalXp += parseInt(item.xp) || 0;
   });
-  text += `\n【小計】剩餘支線:${valueToBranchStr((bv||0)-totalBranchVal)} 分數:${(parseInt(ownPoints)||0)-totalPoints} XP:${(parseInt(ownXp)||0)-totalXp}`;
+  text += '\n【小計】剩餘支線:' + valueToBranchStr((bv||0)-totalBranchVal) + ' 分數:' + ((parseInt(ownPoints)||0)-totalPoints) + ' XP:' + ((parseInt(ownXp)||0)-totalXp);
   try {
     await navigator.clipboard.writeText(text);
     alert('已複製到剪貼簿');
   } catch (e) {
-    // Fallback for older browsers
     const ta = document.createElement('textarea');
     ta.value = text;
     document.body.appendChild(ta);
@@ -289,7 +284,6 @@ on($('#copy-clipboard'), 'click', async () => {
     alert('已複製到剪貼簿');
   }
 });
-renderBranches();
 
 on($('#add-item'), 'click', () => {
   items.push({ category: '', name: '', target: '', branch: '', points: 0, xp: 0 });
@@ -298,7 +292,6 @@ on($('#add-item'), 'click', () => {
   updateSubtotal();
 });
 
-// Tab switching
 document.querySelectorAll('.tab').forEach(btn => {
   on(btn, 'click', () => {
     document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
@@ -308,8 +301,8 @@ document.querySelectorAll('.tab').forEach(btn => {
   });
 });
 
+on($('#save-branch'), 'click', saveBranch);
 on($('#save'), 'click', () => { save(); alert('已儲存'); });
-
 on($('#clear'), 'click', () => {
   if (confirm('確定清除全部？')) {
     items = [];
@@ -324,3 +317,4 @@ on($('#clear'), 'click', () => {
 load();
 renderItems();
 updateSubtotal();
+renderBranches();
