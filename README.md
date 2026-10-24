@@ -12,11 +12,11 @@ UHtrpg-Tools/
 │  ├─ styles.css
 │  └─ common.js
 └─ tools/              # 每個工具一個獨立目錄
-   ├─ example/         # 最小範例工具（驗證庫結構）
+   ├─ purchase-calculator/  # 購買計算器
    │  ├─ index.html
    │  ├─ style.css
    │  └─ script.js
-   └─ purchase-calculator/  # 購買計算器
+   └─ purchase-list/       # 購買清單
       ├─ index.html
       ├─ style.css
       └─ script.js
