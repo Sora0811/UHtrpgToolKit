@@ -76,14 +76,23 @@ function save() {
 }
 
 function load() {
-  const saved = localStorage.getItem('purchase-list');
-  if (saved) items = JSON.parse(saved);
-  const own = localStorage.getItem('purchase-own');
-  if (own) {
-    const o = JSON.parse(own);
-    $('#own-branch').value = o.branch || '';
-    $('#own-points').value = o.points || 0;
-    $('#own-xp').value = o.xp || 0;
+  try {
+    const saved = localStorage.getItem('purchase-list');
+    if (saved) items = JSON.parse(saved) || [];
+  } catch (e) {
+    items = [];
+    localStorage.removeItem('purchase-list');
+  }
+  try {
+    const own = localStorage.getItem('purchase-own');
+    if (own) {
+      const o = JSON.parse(own);
+      $('#own-branch').value = o.branch || '';
+      $('#own-points').value = o.points || 0;
+      $('#own-xp').value = o.xp || 0;
+    }
+  } catch (e) {
+    localStorage.removeItem('purchase-own');
   }
 }
 
