@@ -3,21 +3,54 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>UH TRPG Tool Library</title>
+  <title>UH TRPG 工具庫</title>
   <link rel="stylesheet" href="shared/styles.css">
+  <style>
+    .hero { text-align: center; padding: 2rem 1rem; }
+    .hero h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+    .hero p { color: var(--muted); max-width: 600px; margin: 0 auto; }
+    .tool-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+    .tool-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; transition: box-shadow 0.2s; }
+    .tool-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .tool-card h3 { margin: 0 0 0.5rem; font-size: 1.1rem; }
+    .tool-card p { color: var(--muted); font-size: 0.9rem; margin: 0 0 0.75rem; }
+    .tool-card a { display: inline-block; font-weight: 600; }
+    .footer { text-align: center; color: var(--muted); font-size: 0.85rem; padding: 2rem 0; border-top: 1px solid var(--border); margin-top: 2rem; }
+  </style>
 </head>
 <body>
   <main class="container">
-    <h1>UH TRPG Tool Library</h1>
-    <p class="lead">Web-based small tools for UH TRPG players and GMs. Each tool runs independently.</p>
-    <section>
-      <h2>Tools</h2>
-      <ul class="tool-list">
-        <li><a href="tools/example/">Example Tool</a> — minimal starter tool demonstrating the library structure.</li>
-        <li><a href="tools/purchase-calculator/">購買計算器</a> — 屬性、技能、資源、專長與造物計算（公式待補）。</li>
-      </ul>
+    <section class="hero">
+      <h1>UH TRPG 工具庫</h1>
+      <p>為 UH TRPG 玩家與主持人準備的小工具集合。每個工具可獨立開啟使用。</p>
     </section>
-    <p class="note">No game rules or formulas are defined by this library itself; each tool ships its own requirements.</p>
+
+    <section>
+      <h2>工具列表</h2>
+      <div class="tool-grid">
+        <div class="tool-card">
+          <h3>購買計算器</h3>
+          <p>屬性、技能、資源、專長與造物的購買/經驗計算。</p>
+          <a href="tools/purchase-calculator/">開啟 →</a>
+        </div>
+        <div class="tool-card">
+          <h3>購買清單</h3>
+          <p>記錄預計購買項目，計算所需支線、分數與經驗。</p>
+          <a href="tools/purchase-list/">開啟 →</a>
+        </div>
+        <div class="tool-card">
+          <h3>Example Tool</h3>
+          <p>最小範例工具，展示工具庫結構。</p>
+          <a href="tools/example/">開啟 →</a>
+        </div>
+      </div>
+    </section>
+
+    <p class="note">本工具庫本身不實作任何遊戲規則或公式；每個工具各自 ships 其需求。</p>
+
+    <footer class="footer">
+      UH TRPG Tool Library · <a href="https://github.com/Sora0811/UHtrpgToolKit">GitHub</a>
+    </footer>
   </main>
 </body>
 </html>
