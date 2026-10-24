@@ -7,10 +7,9 @@ const BRANCH_VALUE = {};
 BRANCH_CHAIN.forEach((b, i) => { BRANCH_VALUE[b] = Math.pow(3, i); });
 // 雙支線
 ['D','C','B','A'].forEach(b => { BRANCH_VALUE[b+b] = BRANCH_VALUE[b] * 2; });
-// AAA = S (使用者指定：AAA 視為 S)
+// AAA = S
 BRANCH_VALUE['AAA'] = BRANCH_VALUE['S'];
 
-// 貪婪解析：從左到右，優先匹配最長的支線標籤
 function parseBranchStr(str) {
   str = (str || '').trim().toUpperCase().replace(/\s+/g, '');
   if (!str) return [];
@@ -18,7 +17,6 @@ function parseBranchStr(str) {
   let i = 0;
   while (i < str.length) {
     let matched = false;
-    // 嘗試匹配最長的支線標籤（AAA > AA > A）
     for (const len of [3, 2, 1]) {
       const sub = str.slice(i, i + len);
       if (BRANCH_VALUE[sub] !== undefined) {
@@ -28,7 +26,7 @@ function parseBranchStr(str) {
         break;
       }
     }
-    if (!matched) return null; // 格式錯誤
+    if (!matched) return null;
   }
   return result;
 }
@@ -43,14 +41,12 @@ function valueToBranchStr(val) {
   if (val <= 0) return '0';
   const result = [];
   let remaining = val;
-  // S 以上都算 S（AAA 視為 S）
   const sVal = BRANCH_VALUE['S'];
   while (remaining >= sVal - 0.001) {
     result.push('S');
     remaining -= sVal;
     if (remaining < 0.001) break;
   }
-  // 從大到小拆解（排除 S 和 AAA，因為已處理）
   const sorted = [...BRANCH_CHAIN].filter(b => b !== 'S' && b !== 'AAA').sort((a, b) => BRANCH_VALUE[b] - BRANCH_VALUE[a]);
   for (const b of sorted) {
     const v = BRANCH_VALUE[b];
@@ -61,7 +57,6 @@ function valueToBranchStr(val) {
     }
     if (remaining < 0.001) break;
   }
-  // 剩餘的 D 等值
   if (remaining > 0.001) {
     const dRem = Math.round(remaining * 10) / 10;
     if (dRem > 0) result.push(`${dRem}D等值`);
@@ -206,4 +201,3 @@ on($('#clear'), 'click', () => {
 load();
 renderItems();
 updateSubtotal();
-
