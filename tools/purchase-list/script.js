@@ -2,13 +2,21 @@ import { $, on } from '../../shared/common.js';
 
 let items = [];
 
-const BRANCH_CHAIN = ['D', 'C', 'B', 'A', 'AA', 'AAA', 'S'];
+// 轉換規則：3個D=C, 3個C=B, 3個B=A, 3個A=S
+// D=1, C=3, B=9, A=27, S=81 (3×A)
+// 雙支線 = 2×單支線
+const BRANCH_CHAIN = ['D', 'C', 'B', 'A', 'S'];
 const BRANCH_VALUE = {};
 BRANCH_CHAIN.forEach((b, i) => { BRANCH_VALUE[b] = Math.pow(3, i); });
+// S = 3×A = 81
+BRANCH_VALUE['S'] = BRANCH_VALUE['A'] * 3;
 // 雙支線
 ['D','C','B','A'].forEach(b => { BRANCH_VALUE[b+b] = BRANCH_VALUE[b] * 2; });
-// AAA = S
+BRANCH_VALUE['SS'] = BRANCH_VALUE['S'] * 2;
+// AAA = 3×A = S
 BRANCH_VALUE['AAA'] = BRANCH_VALUE['S'];
+// AA = 2×A
+BRANCH_VALUE['AA'] = BRANCH_VALUE['A'] * 2;
 
 function parseBranchStr(str) {
   str = (str || '').trim().toUpperCase().replace(/\s+/g, '');
@@ -41,13 +49,15 @@ function valueToBranchStr(val) {
   if (val <= 0) return '0';
   const result = [];
   let remaining = val;
+  // S 優先（再往上不用轉換）
   const sVal = BRANCH_VALUE['S'];
   while (remaining >= sVal - 0.001) {
     result.push('S');
     remaining -= sVal;
     if (remaining < 0.001) break;
   }
-  const sorted = [...BRANCH_CHAIN].filter(b => b !== 'S' && b !== 'AAA').sort((a, b) => BRANCH_VALUE[b] - BRANCH_VALUE[a]);
+  // 從大到小拆解
+  const sorted = [...BRANCH_CHAIN].filter(b => b !== 'S').sort((a, b) => BRANCH_VALUE[b] - BRANCH_VALUE[a]);
   for (const b of sorted) {
     const v = BRANCH_VALUE[b];
     while (remaining >= v - 0.001) {
