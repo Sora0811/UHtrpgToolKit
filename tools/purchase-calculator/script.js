@@ -112,4 +112,54 @@ function updateCraft() {
   $('#craft-result').textContent = `圖紙: ${paperPrice} XP | 材料分數: ${materialPrice} | 製造 DC: ${dc}`;
 }
 ['craft-branch','craft-points'].forEach(id => on($('#'+id), 'input', updateCraft));
-updateCraft();
+// Tab switching
+document.querySelectorAll('.tab').forEach(btn => {
+  on(btn, 'click', () => {
+    document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.hidden = true);
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab).hidden = false;
+  });
+});
+
+// Log
+let logEntries = JSON.parse(localStorage.getItem('calc-log') || '[]');
+
+function renderLog() {
+  const container = $('#log-list');
+  container.innerHTML = '';
+  logEntries.forEach((entry, idx) => {
+    const div = document.createElement('div');
+    div.className = 'item-card';
+    div.innerHTML = `<div class="item-row" style="align-items:center;"><div style="flex:1;">${entry}</div><div style="flex:0 0 auto;"><button class="danger" data-del="${idx}">−</button></div></div>`;
+    container.appendChild(div);
+  });
+  container.querySelectorAll('button[data-del]').forEach(btn => {
+    on(btn, 'click', e => {
+      logEntries.splice(parseInt(e.target.dataset.del), 1);
+      localStorage.setItem('calc-log', JSON.stringify(logEntries));
+      renderLog();
+    });
+  });
+}
+
+function addLog(text) {
+  logEntries.push(text);
+  localStorage.setItem('calc-log', JSON.stringify(logEntries));
+  renderLog();
+}
+
+on($('#attr-log'), 'click', () => addLog('屬性：' + $('#attr-result').textContent));
+on($('#skill-log'), 'click', () => addLog('技能：' + $('#skill-result').textContent));
+on($('#res-log'), 'click', () => addLog('資源：' + $('#res-result').textContent));
+on($('#feat-log'), 'click', () => addLog('專長：' + $('#feat-result').textContent));
+on($('#craft-log'), 'click', () => addLog('造物：' + $('#craft-result').textContent));
+on($('#log-clear'), 'click', () => {
+  if (confirm('確定清除全部紀錄？')) {
+    logEntries = [];
+    localStorage.setItem('calc-log', JSON.stringify(logEntries));
+    renderLog();
+  }
+});
+
+renderLog();
