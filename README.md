@@ -1,3 +1,4 @@
+HEAD
 # UH TRPG Tool Library
 
 Web-based collection of small, independent tools for UH TRPG players and GMs.
@@ -42,3 +43,5 @@ Tools never depend on other tools or on the library's page structure, so detachm
 2. Reuse `shared/` only when needed; keep the tool independently runnable.
 3. Add a link on the root `index.html`.
 4. Verify on desktop and mobile widths.
+
+origin/main
