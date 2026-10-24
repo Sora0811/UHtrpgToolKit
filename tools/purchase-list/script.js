@@ -88,46 +88,41 @@ function load() {
 }
 
 function renderItems() {
-  const container = $('#items-container');
-  container.innerHTML = '';
+  const tbody = $('#items-body');
+  tbody.innerHTML = '';
   items.forEach((item, idx) => {
-    const card = document.createElement('div');
-    card.className = 'item-card';
-    card.innerHTML = `
-      <div class="item-row">
-        <div>
-          <label>分類</label>
-          <input type="text" data-idx="${idx}" data-field="category" value="${item.category || ''}" placeholder="如 屬性">
-        </div>
-        <div>
-          <label>項目</label>
-          <input type="text" data-idx="${idx}" data-field="name" value="${item.name || ''}" placeholder="如 力量">
-        </div>
-        <div>
-          <label>購買目標</label>
-          <input type="text" data-idx="${idx}" data-field="target" value="${item.target || ''}" placeholder="如 1>5">
-        </div>
-        <div>
-          <label>支線</label>
-          <input type="text" data-idx="${idx}" data-field="branch" value="${item.branch || ''}" placeholder="D">
-        </div>
-        <div>
-          <label>分數</label>
-          <input type="number" data-idx="${idx}" data-field="points" value="${item.points || 0}" min="0">
-        </div>
-        <div>
-          <label>經驗 (XP)</label>
-          <input type="number" data-idx="${idx}" data-field="xp" value="${item.xp || 0}" min="0">
-        </div>
-        <div style="flex:0 0 auto;">
-          <button class="danger" data-remove="${idx}" style="margin-top:1.2rem;">−</button>
-        </div>
-      </div>
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>
+        <select data-idx="${idx}" data-field="category">
+          <option value="" ${item.category === '' ? 'selected' : ''}>—</option>
+          <option value="屬性" ${item.category === '屬性' ? 'selected' : ''}>屬性</option>
+          <option value="技能" ${item.category === '技能' ? 'selected' : ''}>技能</option>
+          <option value="專長" ${item.category === '專長' ? 'selected' : ''}>專長</option>
+          <option value="血統" ${item.category === '血統' ? 'selected' : ''}>血統</option>
+          <option value="改造" ${item.category === '改造' ? 'selected' : ''}>改造</option>
+          <option value="瞳術" ${item.category === '瞳術' ? 'selected' : ''}>瞳術</option>
+          <option value="修真" ${item.category === '修真' ? 'selected' : ''}>修真</option>
+          <option value="魔導書" ${item.category === '魔導書' ? 'selected' : ''}>魔導書</option>
+          <option value="稱號" ${item.category === '稱號' ? 'selected' : ''}>稱號</option>
+          <option value="能量池" ${item.category === '能量池' ? 'selected' : ''}>能量池</option>
+          <option value="技藝" ${item.category === '技藝' ? 'selected' : ''}>技藝</option>
+          <option value="招式" ${item.category === '招式' ? 'selected' : ''}>招式</option>
+          <option value="法術" ${item.category === '法術' ? 'selected' : ''}>法術</option>
+          <option value="物品" ${item.category === '物品' ? 'selected' : ''}>物品</option>
+        </select>
+      </td>
+      <td><input type="text" data-idx="${idx}" data-field="name" value="${item.name || ''}" placeholder="如 力量"></td>
+      <td><input type="text" data-idx="${idx}" data-field="target" value="${item.target || ''}" placeholder="如 1>5"></td>
+      <td><input type="text" data-idx="${idx}" data-field="branch" value="${item.branch || ''}" placeholder="D"></td>
+      <td><input type="number" data-idx="${idx}" data-field="points" value="${item.points || 0}" min="0"></td>
+      <td><input type="number" data-idx="${idx}" data-field="xp" value="${item.xp || 0}" min="0"></td>
+      <td><button class="danger" data-remove="${idx}">−</button></td>
     `;
-    container.appendChild(card);
+    tbody.appendChild(tr);
   });
 
-  container.querySelectorAll('input[data-idx]').forEach(inp => {
+  tbody.querySelectorAll('input[data-idx]').forEach(inp => {
     on(inp, 'input', e => {
       const idx = parseInt(e.target.dataset.idx);
       const field = e.target.dataset.field;
@@ -136,7 +131,7 @@ function renderItems() {
       updateSubtotal();
     });
   });
-  container.querySelectorAll('button[data-remove]').forEach(btn => {
+  tbody.querySelectorAll('button[data-remove]').forEach(btn => {
     on(btn, 'click', e => {
       items.splice(parseInt(e.target.dataset.remove), 1);
       save();
@@ -190,11 +185,122 @@ function updateSubtotal() {
   }
 }
 
+function saveBranch() {
+  const name = $('#branch-name').value.trim();
+  if (!name) { alert('請輸入分支名稱'); return; }
+  const branches = JSON.parse(localStorage.getItem('purchase-branches') || '{}');
+  branches[name] = JSON.parse(JSON.stringify(items));
+  localStorage.setItem('purchase-branches', JSON.stringify(branches));
+  $('#branch-name').value = '';
+  renderBranches();
+  alert(`已儲存分支「${name}」`);
+}
+
+function renderBranches() {
+  const branches = JSON.parse(localStorage.getItem('purchase-branches') || '{}');
+  const container = $('#branches-list');
+  container.innerHTML = '';
+  Object.keys(branches).forEach(name => {
+    const items = branches[name];
+    let totalBranchVal = 0, totalPoints = 0, totalXp = 0;
+    items.forEach(item => {
+      const bv = branchStrToValue(item.branch);
+      if (bv !== null) totalBranchVal += bv;
+      totalPoints += parseInt(item.points) || 0;
+      totalXp += parseInt(item.xp) || 0;
+    });
+    const div = document.createElement('div');
+    div.className = 'item-card';
+    div.innerHTML = `
+      <div class="item-row" style="align-items:center;">
+        <div style="flex:1;">
+          <strong>${name}</strong> (${items.length} 項)<br>
+          <span class="note">預計支出：支線 ${valueToBranchStr(totalBranchVal)}、分數 ${totalPoints}、XP ${totalXp}</span>
+        </div>
+        <div style="flex:0 0 auto;">
+          <button class="secondary" data-load="${name}">載入</button>
+          <button class="danger" data-del="${name}">−</button>
+        </div>
+      </div>
+    `;
+    container.appendChild(div);
+  });
+  container.querySelectorAll('button[data-load]').forEach(btn => {
+    on(btn, 'click', e => {
+      const name = e.target.dataset.load;
+      const branches = JSON.parse(localStorage.getItem('purchase-branches') || '{}');
+      items = JSON.parse(JSON.stringify(branches[name]));
+      save();
+      renderItems();
+      updateSubtotal();
+      // Switch to list tab
+      document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.hidden = true);
+      document.querySelector('.tab[data-tab="list"]').classList.add('active');
+      document.getElementById('list').hidden = false;
+    });
+  });
+  container.querySelectorAll('button[data-del]').forEach(btn => {
+    on(btn, 'click', e => {
+      const name = e.target.dataset.del;
+      if (confirm(`刪除分支「${name}」？`)) {
+        const branches = JSON.parse(localStorage.getItem('purchase-branches') || '{}');
+        delete branches[name];
+        localStorage.setItem('purchase-branches', JSON.stringify(branches));
+        renderBranches();
+      }
+    });
+  });
+}
+
+on($('#copy-clipboard'), 'click', async () => {
+  const ownBranch = $('#own-branch').value;
+  const ownPoints = $('#own-points').value;
+  const ownXp = $('#own-xp').value;
+  let text = `【目前擁有】支線:${ownBranch} 分數:${ownPoints} XP:${ownXp}\n\n【預計購買項目】\n`;
+  items.forEach((item, i) => {
+    text += `${i+1}. [${item.category || '—'}] ${item.name || '—'} 目標:${item.target || '—'} 支線:${item.branch || '—'} 分數:${item.points || 0} XP:${item.xp || 0}\n`;
+  });
+  const bv = branchStrToValue(ownBranch);
+  let totalBranchVal = 0, totalPoints = 0, totalXp = 0;
+  items.forEach(item => {
+    const v = branchStrToValue(item.branch);
+    if (v !== null) totalBranchVal += v;
+    totalPoints += parseInt(item.points) || 0;
+    totalXp += parseInt(item.xp) || 0;
+  });
+  text += `\n【小計】剩餘支線:${valueToBranchStr((bv||0)-totalBranchVal)} 分數:${(parseInt(ownPoints)||0)-totalPoints} XP:${(parseInt(ownXp)||0)-totalXp}`;
+  try {
+    await navigator.clipboard.writeText(text);
+    alert('已複製到剪貼簿');
+  } catch (e) {
+    // Fallback for older browsers
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    alert('已複製到剪貼簿');
+  }
+});
+renderBranches();
+
 on($('#add-item'), 'click', () => {
   items.push({ category: '', name: '', target: '', branch: '', points: 0, xp: 0 });
   save();
   renderItems();
   updateSubtotal();
+});
+
+// Tab switching
+document.querySelectorAll('.tab').forEach(btn => {
+  on(btn, 'click', () => {
+    document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.hidden = true);
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab).hidden = false;
+  });
 });
 
 on($('#save'), 'click', () => { save(); alert('已儲存'); });
