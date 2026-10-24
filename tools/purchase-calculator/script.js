@@ -7,13 +7,11 @@ const BRANCH_MAP = { D: 1, C: 2, B: 3, A: 4, S: 5 };
 function parseBranch(str) {
   str = (str || '').trim().toUpperCase();
   if (!str) return null;
-  // 支援雙支線如 DD, CC 等
   let total = 0;
   for (const ch of str) {
     if (!BRANCH_MAP[ch]) return null;
     total += BRANCH_MAP[ch];
   }
-  // 雙支線 +0.5（DD=1.5, CC=2.5 ...）
   if (str.length === 2 && str[0] === str[1]) total += 0.5;
   return total;
 }
@@ -85,7 +83,7 @@ updateRes();
 function updateFeat() {
   const level = parseInt($('#feat-level').value) || 1;
   const type = $('#feat-type').value;
-  const mult = (type === 'team') ? 6 : 3;
+  const mult = (type === 'team') ? 6 : (type === 'noncombat') ? 2 : 3;
   $('#feat-level-num').value = level;
   $('#feat-result').textContent = `需 ${level * mult} XP`;
 }
@@ -112,6 +110,8 @@ function updateCraft() {
   $('#craft-result').textContent = `圖紙: ${paperPrice} XP | 材料分數: ${materialPrice} | 製造 DC: ${dc}`;
 }
 ['craft-branch','craft-points'].forEach(id => on($('#'+id), 'input', updateCraft));
+updateCraft();
+
 // Tab switching
 document.querySelectorAll('.tab').forEach(btn => {
   on(btn, 'click', () => {
@@ -120,6 +120,22 @@ document.querySelectorAll('.tab').forEach(btn => {
     btn.classList.add('active');
     document.getElementById(btn.dataset.tab).hidden = false;
   });
+});
+
+// Skill tag toggle for extra inputs
+on($('#skill-tag'), 'change', () => {
+  const val = $('#skill-tag').value;
+  const sub = $('#skill-tag-sub');
+  const other = $('#skill-tag-other');
+  sub.hidden = true;
+  other.hidden = true;
+  sub.value = '';
+  other.value = '';
+  if (val === '手藝' || val === '表達') {
+    sub.hidden = false;
+  } else if (val === '其他') {
+    other.hidden = false;
+  }
 });
 
 // Log
@@ -143,17 +159,47 @@ function renderLog() {
   });
 }
 
-function addLog(text) {
-  logEntries.push(text);
-  localStorage.setItem('calc-log', JSON.stringify(logEntries));
-  renderLog();
+function getActiveTab() {
+  return document.querySelector('.tab.active')?.dataset.tab || '';
 }
 
-on($('#attr-log'), 'click', () => addLog('屬性：' + $('#attr-result').textContent));
-on($('#skill-log'), 'click', () => addLog('技能：' + $('#skill-result').textContent));
-on($('#res-log'), 'click', () => addLog('資源：' + $('#res-result').textContent));
-on($('#feat-log'), 'click', () => addLog('專長：' + $('#feat-result').textContent));
-on($('#craft-log'), 'click', () => addLog('造物：' + $('#craft-result').textContent));
+function getTag() {
+  const tab = getActiveTab();
+  if (tab === 'attr') return $('#attr-tag').value;
+  if (tab === 'skill') {
+    const sel = $('#skill-tag').value;
+    if (sel === '其他') return $('#skill-tag-other').value || '其他';
+    return sel;
+  }
+  if (tab === 'feat') return $('#feat-tag').value || '專長';
+  return '';
+}
+
+on($('#log-btn'), 'click', () => {
+  const tab = getActiveTab();
+  let text = '';
+  if (tab === 'attr') {
+    const cur = $('#attr-current').value;
+    const tgt = $('#attr-target').value;
+    text = `【屬性】${getTag()}：${cur} → ${tgt}，${$('#attr-result').textContent}`;
+  } else if (tab === 'skill') {
+    const cur = $('#skill-current').value;
+    const tgt = $('#skill-target').value;
+    text = `【技能】${getTag()}：${cur} → ${tgt}，${$('#skill-result').textContent}`;
+  } else if (tab === 'res') {
+    text = `【資源】${$('#res-result').textContent}`;
+  } else if (tab === 'feat') {
+    text = `【專長】${getTag()}：${$('#feat-result').textContent}`;
+  } else if (tab === 'craft') {
+    text = `【造物】${$('#craft-result').textContent}`;
+  }
+  if (text) {
+    logEntries.push(text);
+    localStorage.setItem('calc-log', JSON.stringify(logEntries));
+    renderLog();
+  }
+});
+
 on($('#log-clear'), 'click', () => {
   if (confirm('確定清除全部紀錄？')) {
     logEntries = [];

@@ -13,109 +13,154 @@
     <h1>購買計算器</h1>
     <p class="lead">屬性、技能、資源、專長與造物的購買/經驗計算。輸入即時更新。</p>
 
-    <nav class="tabs" role="tablist">
-      <button class="tab active" data-tab="attr">屬性</button>
-      <button class="tab" data-tab="skill">技能</button>
-      <button class="tab" data-tab="res">資源</button>
-      <button class="tab" data-tab="feat">專長</button>
-      <button class="tab" data-tab="craft">造物</button>
-      <button class="tab" data-tab="log">紀錄</button>
-    </nav>
+    <div class="calc-layout">
+      <div class="calc-main">
+        <nav class="tabs" role="tablist">
+          <button class="tab active" data-tab="attr">屬性</button>
+          <button class="tab" data-tab="skill">技能</button>
+          <button class="tab" data-tab="res">資源</button>
+          <button class="tab" data-tab="feat">專長</button>
+          <button class="tab" data-tab="craft">造物</button>
+        </nav>
 
-    <!-- 屬性 -->
-    <section id="attr" class="tab-panel card">
-      <h2>屬性購買</h2>
-      <p class="note">提升 1 點屬性：分數 = 當前屬性 × 200；經驗 = 當前屬性 × 4 XP；0→1 與 1→2 相同</p>
-      <label for="attr-mode">計算模式</label>
-      <select id="attr-mode">
-        <option value="xp">經驗 (XP)</option>
-        <option value="points">分數</option>
-      </select>
-      <label for="attr-current">當前屬性值</label>
-      <div class="input-pair">
-        <input id="attr-current" type="range" min="0" max="99" value="1">
-        <input id="attr-current-num" type="number" min="0" max="99" value="1">
+        <!-- 屬性 -->
+        <section id="attr" class="tab-panel card">
+          <h2>屬性購買</h2>
+          <p class="note">提升 1 點屬性：分數 = 當前屬性 × 200；經驗 = 當前屬性 × 4 XP；0→1 與 1→2 相同</p>
+          <label for="attr-tag">標籤</label>
+          <select id="attr-tag">
+            <option value="力量">力量</option>
+            <option value="敏捷">敏捷</option>
+            <option value="耐力">耐力</option>
+            <option value="智力">智力</option>
+            <option value="感知">感知</option>
+            <option value="決心">決心</option>
+            <option value="風度">風度</option>
+            <option value="操控">操控</option>
+            <option value="沉著">沉著</option>
+          </select>
+          <label for="attr-mode">計算模式</label>
+          <select id="attr-mode">
+            <option value="xp">經驗 (XP)</option>
+            <option value="points">分數</option>
+          </select>
+          <label for="attr-current">當前屬性值</label>
+          <div class="input-pair">
+            <input id="attr-current" type="range" min="0" max="99" value="1">
+            <input id="attr-current-num" type="number" min="0" max="99" value="1">
+          </div>
+          <label for="attr-target">目標屬性值</label>
+          <div class="input-pair">
+            <input id="attr-target" type="range" min="0" max="99" value="2">
+            <input id="attr-target-num" type="number" min="0" max="99" value="2">
+          </div>
+          <p id="attr-result" class="note result">—</p>
+          <p id="attr-warn" class="note warn" hidden>目標值必須大於當前值</p>
+        </section>
+
+        <!-- 技能 -->
+        <section id="skill" class="tab-panel card" hidden>
+          <h2>技能購買</h2>
+          <p class="note">提升 1 級技能 = (當前等級 − 1) × 2 XP；0→1 = 3 XP；1→2 = 1 XP</p>
+          <label for="skill-tag">標籤</label>
+          <select id="skill-tag">
+            <option value="運動">運動</option>
+            <option value="肉搏">肉搏</option>
+            <option value="駕駛">駕駛</option>
+            <option value="槍械">槍械</option>
+            <option value="巧手">巧手</option>
+            <option value="隱藏">隱藏</option>
+            <option value="求生">求生</option>
+            <option value="白刃">白刃</option>
+            <option value="弓箭">弓箭</option>
+            <option value="學識">學識</option>
+            <option value="電腦">電腦</option>
+            <option value="手藝">手藝</option>
+            <option value="調查">調查</option>
+            <option value="醫學">醫學</option>
+            <option value="神秘">神秘</option>
+            <option value="科學">科學</option>
+            <option value="馴獸">馴獸</option>
+            <option value="感受">感受</option>
+            <option value="表達">表達</option>
+            <option value="威逼">威逼</option>
+            <option value="交際">交際</option>
+            <option value="掩飾">掩飾</option>
+            <option value="其他">其他</option>
+          </select>
+          <input id="skill-tag-extra" type="text" placeholder="子技能名稱" hidden>
+          <label for="skill-current">當前等級</label>
+          <div class="input-pair">
+            <input id="skill-current" type="range" min="0" max="15" value="0">
+            <input id="skill-current-num" type="number" min="0" max="15" value="0">
+          </div>
+          <label for="skill-target">目標等級</label>
+          <div class="input-pair">
+            <input id="skill-target" type="range" min="0" max="15" value="1">
+            <input id="skill-target-num" type="number" min="0" max="15" value="1">
+          </div>
+          <p id="skill-result" class="note result">—</p>
+          <p id="skill-warn" class="note warn" hidden>目標等級必須大於當前等級</p>
+        </section>
+
+        <!-- 資源 -->
+        <section id="res" class="tab-panel card" hidden>
+          <h2>資源購買 (支線 → 經驗)</h2>
+          <p class="note">XP = 支線等級² × 4 + 支線等級 × 6 + 獎勵點數/400 (向上取整)；雙支線 +0.5 (DD=1.5)</p>
+          <label for="res-branch">支線等級 (D/C/B/A/S，可雙支線如 DD)</label>
+          <input id="res-branch" type="text" value="D" placeholder="D">
+          <label for="res-points">獎勵點數 (分數)</label>
+          <input id="res-points" type="number" min="0" value="0">
+          <p id="res-result" class="note result">轉換成經驗：—</p>
+          <p id="res-warn" class="note warn" hidden>支線等級格式錯誤</p>
+        </section>
+
+        <!-- 專長 -->
+        <section id="feat" class="tab-panel card" hidden>
+          <h2>專長購買</h2>
+          <p class="note">一般專長 = 等級 × 3 XP；輪迴隊專長 = 等級 × 6 XP</p>
+          <label for="feat-tag">標籤</label>
+          <input id="feat-tag" type="text" placeholder="專長名稱">
+          <label for="feat-type">類型</label>
+          <select id="feat-type">
+            <option value="combat">戰鬥專長</option>
+            <option value="noncombat">非戰鬥專長</option>
+            <option value="team">輪迴隊專長</option>
+          </select>
+          <label for="feat-level">購買等級</label>
+          <div class="input-pair">
+            <input id="feat-level" type="range" min="1" max="10" value="1">
+            <input id="feat-level-num" type="number" min="1" max="10" value="1">
+          </div>
+          <p id="feat-result" class="note result">—</p>
+        </section>
+
+        <!-- 造物 -->
+        <section id="craft" class="tab-panel card" hidden>
+          <h2>造物規則</h2>
+          <p class="note">圖紙 = 支線 × 分數 / 100；材料 = 分數 / 3；製造 DC = 支線 × 分數 / 100 (向上取整)</p>
+          <label for="craft-branch">支線等級 (D/C/B/A/S，可雙支線如 DD)</label>
+          <input id="craft-branch" type="text" value="D" placeholder="D">
+          <label for="craft-points">分數</label>
+          <input id="craft-points" type="number" min="0" value="500">
+          <p id="craft-result" class="note result">—</p>
+          <p id="craft-warn" class="note warn" hidden>支線等級格式錯誤</p>
+        </section>
+
+        <div style="margin-top:1rem; text-align:right;">
+          <button id="log-btn">記錄</button>
+        </div>
       </div>
-      <label for="attr-target">目標屬性值</label>
-      <div class="input-pair">
-        <input id="attr-target" type="range" min="0" max="99" value="2">
-        <input id="attr-target-num" type="number" min="0" max="99" value="2">
+
+      <div class="calc-log">
+        <section class="card">
+          <h2>紀錄</h2>
+          <p class="note">計算結果紀錄列表</p>
+          <div id="log-list"></div>
+          <button id="log-clear" style="margin-top:0.75rem;" class="danger">清除全部</button>
+        </section>
       </div>
-      <p id="attr-result" class="note result">—</p>
-      <p id="attr-warn" class="note warn" hidden>目標值必須大於當前值</p>
-      <button id="attr-log" style="margin-top:0.75rem;">紀錄</button>
-    </section>
-
-    <!-- 技能 -->
-    <section id="skill" class="tab-panel card" hidden>
-      <h2>技能購買</h2>
-      <p class="note">提升 1 級技能 = (當前等級 − 1) × 2 XP；0→1 = 3 XP；1→2 = 1 XP</p>
-      <label for="skill-current">當前等級</label>
-      <div class="input-pair">
-        <input id="skill-current" type="range" min="0" max="15" value="0">
-        <input id="skill-current-num" type="number" min="0" max="15" value="0">
-      </div>
-      <label for="skill-target">目標等級</label>
-      <div class="input-pair">
-        <input id="skill-target" type="range" min="0" max="15" value="1">
-        <input id="skill-target-num" type="number" min="0" max="15" value="1">
-      </div>
-      <p id="skill-result" class="note result">—</p>
-      <p id="skill-warn" class="note warn" hidden>目標等級必須大於當前等級</p>
-      <button id="skill-log" style="margin-top:0.75rem;">紀錄</button>
-    </section>
-
-    <!-- 資源 -->
-    <section id="res" class="tab-panel card" hidden>
-      <h2>資源購買 (支線 → 經驗)</h2>
-      <p class="note">XP = 支線等級² × 4 + 支線等級 × 6 + 獎勵點數/400 (向上取整)；雙支線 +0.5 (DD=1.5)</p>
-      <label for="res-branch">支線等級 (D/C/B/A/S，可雙支線如 DD)</label>
-      <input id="res-branch" type="text" value="D" placeholder="D">
-      <label for="res-points">獎勵點數 (分數)</label>
-      <input id="res-points" type="number" min="0" value="0">
-      <p id="res-result" class="note result">轉換成經驗：—</p>
-      <p id="res-warn" class="note warn" hidden>支線等級格式錯誤</p>
-      <button id="res-log" style="margin-top:0.75rem;">紀錄</button>
-    </section>
-
-    <!-- 專長 -->
-    <section id="feat" class="tab-panel card" hidden>
-      <h2>專長購買</h2>
-      <p class="note">一般專長 = 等級 × 3 XP；輪迴隊專長 = 等級 × 6 XP</p>
-      <label for="feat-type">類型</label>
-      <select id="feat-type">
-        <option value="normal">一般專長</option>
-        <option value="team">輪迴隊專長</option>
-      </select>
-      <label for="feat-level">購買等級</label>
-      <div class="input-pair">
-        <input id="feat-level" type="range" min="1" max="10" value="1">
-        <input id="feat-level-num" type="number" min="1" max="10" value="1">
-      </div>
-      <p id="feat-result" class="note result">—</p>
-      <button id="feat-log" style="margin-top:0.75rem;">紀錄</button>
-    </section>
-
-    <!-- 造物 -->
-    <section id="craft" class="tab-panel card" hidden>
-      <h2>造物規則</h2>
-      <p class="note">圖紙 = 支線 × 分數 / 100；材料 = 分數 / 3；製造 DC = 支線 × 分數 / 100 (向上取整)</p>
-      <label for="craft-branch">支線等級 (D/C/B/A/S，可雙支線如 DD)</label>
-      <input id="craft-branch" type="text" value="D" placeholder="D">
-      <label for="craft-points">分數</label>
-      <input id="craft-points" type="number" min="0" value="500">
-      <p id="craft-result" class="note result">—</p>
-      <p id="craft-warn" class="note warn" hidden>支線等級格式錯誤</p>
-      <button id="craft-log" style="margin-top:0.75rem;">紀錄</button>
-    </section>
-
-    <!-- 紀錄 -->
-    <section id="log" class="tab-panel card" hidden>
-      <h2>紀錄</h2>
-      <p class="note">計算結果紀錄列表</p>
-      <div id="log-list"></div>
-      <button id="log-clear" style="margin-top:0.75rem;" class="danger">清除全部</button>
-    </section>
+    </div>
   </main>
   <script type="module" src="script.js"></script>
 </body>
