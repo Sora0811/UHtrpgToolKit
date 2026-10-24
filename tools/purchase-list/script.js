@@ -197,70 +197,80 @@ function updateSubtotal() {
 }
 
 function saveBranch() {
-  const name = $('#branch-name').value.trim();
-  if (!name) { alert('請輸入分支名稱'); return; }
-  const branches = JSON.parse(localStorage.getItem('purchase-branches') || '{}');
-  branches[name] = JSON.parse(JSON.stringify(items));
-  localStorage.setItem('purchase-branches', JSON.stringify(branches));
-  $('#branch-name').value = '';
-  renderBranches();
-  alert('已儲存分支「' + name + '」');
+  try {
+    const name = $('#branch-name').value.trim();
+    if (!name) { alert('請輸入分支名稱'); return; }
+    const branches = JSON.parse(localStorage.getItem('purchase-branches') || '{}');
+    branches[name] = JSON.parse(JSON.stringify(items));
+    localStorage.setItem('purchase-branches', JSON.stringify(branches));
+    $('#branch-name').value = '';
+    renderBranches();
+    alert('已儲存分支「' + name + '」');
+  } catch (e) {
+    alert('儲存失敗：' + e.message);
+    console.error(e);
+  }
 }
 
 function renderBranches() {
-  const branches = JSON.parse(localStorage.getItem('purchase-branches') || '{}');
-  const container = $('#branches-list');
-  container.innerHTML = '';
-  Object.keys(branches).forEach(name => {
-    const branchItems = branches[name];
-    let totalBranchVal = 0, totalPoints = 0, totalXp = 0;
-    branchItems.forEach(item => {
-      const bv = branchStrToValue(item.branch);
-      if (bv !== null) totalBranchVal += bv;
-      totalPoints += parseInt(item.points) || 0;
-      totalXp += parseInt(item.xp) || 0;
-    });
-    const div = document.createElement('div');
-    div.className = 'item-card';
-    div.innerHTML = `
-      <div class="item-row" style="align-items:center;">
-        <div style="flex:1;">
-          <strong>${name}</strong> (${branchItems.length} 項)<br>
-          <span class="note">預計支出：支線 ${valueToBranchStr(totalBranchVal)}、分數 ${totalPoints}、XP ${totalXp}</span>
+  try {
+    const branches = JSON.parse(localStorage.getItem('purchase-branches') || '{}');
+    const container = $('#branches-list');
+    if (!container) return;
+    container.innerHTML = '';
+    Object.keys(branches).forEach(name => {
+      const branchItems = branches[name] || [];
+      let totalBranchVal = 0, totalPoints = 0, totalXp = 0;
+      branchItems.forEach(item => {
+        const bv = branchStrToValue(item.branch);
+        if (bv !== null) totalBranchVal += bv;
+        totalPoints += parseInt(item.points) || 0;
+        totalXp += parseInt(item.xp) || 0;
+      });
+      const div = document.createElement('div');
+      div.className = 'item-card';
+      div.innerHTML = `
+        <div class="item-row" style="align-items:center;">
+          <div style="flex:1;">
+            <strong>${name}</strong> (${branchItems.length} 項)<br>
+            <span class="note">預計支出：支線 ${valueToBranchStr(totalBranchVal)}、分數 ${totalPoints}、XP ${totalXp}</span>
+          </div>
+          <div style="flex:0 0 auto;">
+            <button class="secondary" data-load="${name}">載入</button>
+            <button class="danger" data-del="${name}">−</button>
+          </div>
         </div>
-        <div style="flex:0 0 auto;">
-          <button class="secondary" data-load="${name}">載入</button>
-          <button class="danger" data-del="${name}">−</button>
-        </div>
-      </div>
-    `;
-    container.appendChild(div);
-  });
-  container.querySelectorAll('button[data-load]').forEach(btn => {
-    on(btn, 'click', e => {
-      const name = e.target.dataset.load;
-      const branches = JSON.parse(localStorage.getItem('purchase-branches') || '{}');
-      items = JSON.parse(JSON.stringify(branches[name]));
-      save();
-      renderItems();
-      updateSubtotal();
-      document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.tab-panel').forEach(p => p.hidden = true);
-      document.querySelector('.tab[data-tab="list"]').classList.add('active');
-      document.getElementById('list').hidden = false;
+      `;
+      container.appendChild(div);
     });
-  });
-  container.querySelectorAll('button[data-del]').forEach(btn => {
-    on(btn, 'click', e => {
-      const name = e.target.dataset.del;
-      if (confirm('刪除分支「' + name + '」？')) {
+    container.querySelectorAll('button[data-load]').forEach(btn => {
+      on(btn, 'click', e => {
+        const name = e.target.dataset.load;
         const branches = JSON.parse(localStorage.getItem('purchase-branches') || '{}');
-        delete branches[name];
-        localStorage.setItem('purchase-branches', JSON.stringify(branches));
-        renderBranches();
-      }
+        items = JSON.parse(JSON.stringify(branches[name]));
+        save();
+        renderItems();
+        updateSubtotal();
+        document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p => p.hidden = true);
+        document.querySelector('.tab[data-tab="list"]').classList.add('active');
+        document.getElementById('list').hidden = false;
+      });
     });
-  });
+    container.querySelectorAll('button[data-del]').forEach(btn => {
+      on(btn, 'click', e => {
+        const name = e.target.dataset.del;
+        if (confirm('刪除分支「' + name + '」？')) {
+          const branches = JSON.parse(localStorage.getItem('purchase-branches') || '{}');
+          delete branches[name];
+          localStorage.setItem('purchase-branches', JSON.stringify(branches));
+          renderBranches();
+        }
+      });
+    });
+  } catch (e) {
+    console.error('renderBranches error:', e);
+  }
 }
 
 on($('#copy-clipboard'), 'click', async () => {
