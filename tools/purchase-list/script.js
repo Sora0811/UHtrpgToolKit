@@ -1,8 +1,7 @@
-﻿import { $, on } from '../../shared/common.js';
+import { $, on } from '../../shared/common.js';
 
 let items = [];
 
-// 頧?閬?嚗??=C, 3?=B, 3?=A, 3?=S
 const BRANCH_CHAIN = ['D', 'C', 'B', 'A', 'S'];
 const BRANCH_VALUE = {};
 BRANCH_CHAIN.forEach((b, i) => { BRANCH_VALUE[b] = Math.pow(3, i); });
@@ -61,7 +60,7 @@ function valueToBranchStr(val) {
   }
   if (remaining > 0.001) {
     const dRem = Math.round(remaining * 10) / 10;
-    if (dRem > 0) result.push(`${dRem}D蝑嬋);
+    if (dRem > 0) result.push(dRem + 'D等值');
   }
   return result.length ? result.join('') : '0';
 }
@@ -96,37 +95,22 @@ function load() {
   }
 }
 
+const CATEGORIES = ['屬性','技能','專長','血統','改造','瞳術','修真','魔導書','稱號','能量池','技藝','招式','法術','物品'];
+
 function renderItems() {
   const tbody = $('#items-body');
   tbody.innerHTML = '';
   items.forEach((item, idx) => {
     const tr = document.createElement('tr');
+    const catOpts = CATEGORIES.map(c => `<option value="${c}" ${item.category === c ? 'selected' : ''}>${c}</option>`).join('');
     tr.innerHTML = `
-      <td>
-        <select data-idx="${idx}" data-field="category">
-          <option value="" ${item.category === '' ? 'selected' : ''}>??/option>
-          <option value="撅祆? ${item.category === '撅祆? ? 'selected' : ''}>撅祆?/option>
-          <option value="??? ${item.category === '??? ? 'selected' : ''}>???/option>
-          <option value="撠" ${item.category === '撠' ? 'selected' : ''}>撠</option>
-          <option value="銵蝯? ${item.category === '銵蝯? ? 'selected' : ''}>銵蝯?/option>
-          <option value="?寥? ${item.category === '?寥? ? 'selected' : ''}>?寥?/option>
-          <option value="?唾?" ${item.category === '?唾?' ? 'selected' : ''}>?唾?</option>
-          <option value="靽桃?" ${item.category === '靽桃?' ? 'selected' : ''}>靽桃?</option>
-          <option value="擳??? ${item.category === '擳??? ? 'selected' : ''}>擳???/option>
-          <option value="蝔梯?" ${item.category === '蝔梯?' ? 'selected' : ''}>蝔梯?</option>
-          <option value="?賡?瘙? ${item.category === '?賡?瘙? ? 'selected' : ''}>?賡?瘙?/option>
-          <option value="??? ${item.category === '??? ? 'selected' : ''}>???/option>
-          <option value="??" ${item.category === '??' ? 'selected' : ''}>??</option>
-          <option value="瘜?" ${item.category === '瘜?' ? 'selected' : ''}>瘜?</option>
-          <option value="?拙?" ${item.category === '?拙?' ? 'selected' : ''}>?拙?</option>
-        </select>
-      </td>
-      <td><input type="text" data-idx="${idx}" data-field="name" value="${item.name || ''}" placeholder="憒???"></td>
-      <td><input type="text" data-idx="${idx}" data-field="target" value="${item.target || ''}" placeholder="憒?1>5"></td>
-      <td><input type="text" data-idx="${idx}" data-field="branch" value="${item.branch || ''}" placeholder="D"></td>
-      <td><input type="number" data-idx="${idx}" data-field="points" value="${item.points || 0}" min="0"></td>
-      <td><input type="number" data-idx="${idx}" data-field="xp" value="${item.xp || 0}" min="0"></td>
-      <td><button class="danger" data-remove="${idx}">??/button></td>
+      <td data-label="分類"><select data-idx="${idx}" data-field="category"><option value="" ${item.category === '' ? 'selected' : ''}>—</option>${catOpts}</select></td>
+      <td data-label="項目"><input type="text" data-idx="${idx}" data-field="name" value="${item.name || ''}" placeholder="如 力量"></td>
+      <td data-label="購買目標"><input type="text" data-idx="${idx}" data-field="target" value="${item.target || ''}" placeholder="如 1>5"></td>
+      <td data-label="支線"><input type="text" data-idx="${idx}" data-field="branch" value="${item.branch || ''}" placeholder="D"></td>
+      <td data-label="分數"><input type="number" data-idx="${idx}" data-field="points" value="${item.points || 0}" min="0"></td>
+      <td data-label="經驗"><input type="number" data-idx="${idx}" data-field="xp" value="${item.xp || 0}" min="0"></td>
+      <td data-label=""><button class="danger" data-remove="${idx}">−</button></td>
     `;
     tbody.appendChild(tr);
   });
@@ -169,11 +153,11 @@ function updateSubtotal() {
   const remXp = ownXp - totalXp;
 
   if (remBranchVal !== null && remBranchVal < 0) {
-    $('#subtotal-branch').textContent = valueToBranchStr(Math.abs(remBranchVal)) + ' (蝻箏?)';
+    $('#subtotal-branch').textContent = valueToBranchStr(Math.abs(remBranchVal)) + ' (缺少)';
   } else if (remBranchVal !== null) {
-    $('#subtotal-branch').textContent = valueToBranchStr(remBranchVal) + ' (?拚?)';
+    $('#subtotal-branch').textContent = valueToBranchStr(remBranchVal) + ' (剩餘)';
   } else {
-    $('#subtotal-branch').textContent = '??;
+    $('#subtotal-branch').textContent = '—';
   }
   $('#subtotal-points').textContent = remPoints;
   $('#subtotal-xp').textContent = remXp;
@@ -184,13 +168,13 @@ function updateSubtotal() {
 
   const bal = $('#balance');
   if (remBranchVal !== null && remBranchVal >= 0 && remPoints >= 0 && remXp >= 0) {
-    bal.textContent = '擗??雲';
+    bal.textContent = '餘額充足';
     bal.className = 'note';
   } else {
-    let msg = '擗?銝雲嚗?蝻綽?';
-    if (shortBranch) msg += ` ?舐? ${shortBranch}`;
-    if (shortPoints > 0) msg += ` ? ${shortPoints}`;
-    if (shortXp > 0) msg += ` XP ${shortXp}`;
+    let msg = '餘額不足，還缺：';
+    if (shortBranch) msg += ' 支線 ' + shortBranch;
+    if (shortPoints > 0) msg += ' 分數 ' + shortPoints;
+    if (shortXp > 0) msg += ' XP ' + shortXp;
     bal.textContent = msg;
     bal.className = 'note';
   }
@@ -199,15 +183,15 @@ function updateSubtotal() {
 function saveBranch() {
   try {
     const name = $('#branch-name').value.trim();
-    if (!name) { alert('隢撓?亙??臬?蝔?); return; }
+    if (!name) { alert('請輸入分支名稱'); return; }
     const branches = JSON.parse(localStorage.getItem('purchase-branches') || '{}');
     branches[name] = JSON.parse(JSON.stringify(items));
     localStorage.setItem('purchase-branches', JSON.stringify(branches));
     $('#branch-name').value = '';
     renderBranches();
-    alert('撌脣摮??胯? + name + '??);
+    alert('已儲存分支「' + name + '」');
   } catch (e) {
-    alert('?脣?憭望?嚗? + e.message);
+    alert('儲存失敗：' + e.message);
     console.error(e);
   }
 }
@@ -232,12 +216,12 @@ function renderBranches() {
       div.innerHTML = `
         <div class="item-row" style="align-items:center;">
           <div style="flex:1;">
-            <strong>${name}</strong> (${branchItems.length} ??<br>
-            <span class="note">???臬嚗蝺?${valueToBranchStr(totalBranchVal)}????${totalPoints}?P ${totalXp}</span>
+            <strong>${name}</strong> (${branchItems.length} 項)<br>
+            <span class="note">預計支出：支線 ${valueToBranchStr(totalBranchVal)}、分數 ${totalPoints}、XP ${totalXp}</span>
           </div>
           <div style="flex:0 0 auto;">
-            <button class="secondary" data-load="${name}">頛</button>
-            <button class="danger" data-del="${name}">??/button>
+            <button class="secondary" data-load="${name}">載入</button>
+            <button class="danger" data-del="${name}">−</button>
           </div>
         </div>
       `;
@@ -260,7 +244,7 @@ function renderBranches() {
     container.querySelectorAll('button[data-del]').forEach(btn => {
       on(btn, 'click', e => {
         const name = e.target.dataset.del;
-        if (confirm('?芷??? + name + '??')) {
+        if (confirm('刪除分支「' + name + '」？')) {
           const branches = JSON.parse(localStorage.getItem('purchase-branches') || '{}');
           delete branches[name];
           localStorage.setItem('purchase-branches', JSON.stringify(branches));
@@ -277,9 +261,9 @@ on($('#copy-clipboard'), 'click', async () => {
   const ownBranch = $('#own-branch').value;
   const ownPoints = $('#own-points').value;
   const ownXp = $('#own-xp').value;
-  let text = '????蝺?' + ownBranch + ' ?:' + ownPoints + ' XP:' + ownXp + '\n\n??閮頃鞎琿??柴n';
+  let text = '【目前擁有】支線:' + ownBranch + ' 分數:' + ownPoints + ' XP:' + ownXp + '\n\n【預計購買項目】\n';
   items.forEach((item, i) => {
-    text += (i+1) + '. [' + (item.category || '??) + '] ' + (item.name || '??) + ' ?格?:' + (item.target || '??) + ' ?舐?:' + (item.branch || '??) + ' ?:' + (item.points || 0) + ' XP:' + (item.xp || 0) + '\n';
+    text += (i+1) + '. [' + (item.category || '—') + '] ' + (item.name || '—') + ' 目標:' + (item.target || '—') + ' 支線:' + (item.branch || '—') + ' 分數:' + (item.points || 0) + ' XP:' + (item.xp || 0) + '\n';
   });
   const bv = branchStrToValue(ownBranch);
   let totalBranchVal = 0, totalPoints = 0, totalXp = 0;
@@ -289,10 +273,10 @@ on($('#copy-clipboard'), 'click', async () => {
     totalPoints += parseInt(item.points) || 0;
     totalXp += parseInt(item.xp) || 0;
   });
-  text += '\n??閮擗蝺?' + valueToBranchStr((bv||0)-totalBranchVal) + ' ?:' + ((parseInt(ownPoints)||0)-totalPoints) + ' XP:' + ((parseInt(ownXp)||0)-totalXp);
+  text += '\n【小計】剩餘支線:' + valueToBranchStr((bv||0)-totalBranchVal) + ' 分數:' + ((parseInt(ownPoints)||0)-totalPoints) + ' XP:' + ((parseInt(ownXp)||0)-totalXp);
   try {
     await navigator.clipboard.writeText(text);
-    alert('撌脰?鋆賢?芾票蝪?);
+    alert('已複製到剪貼簿');
   } catch (e) {
     const ta = document.createElement('textarea');
     ta.value = text;
@@ -300,7 +284,7 @@ on($('#copy-clipboard'), 'click', async () => {
     ta.select();
     document.execCommand('copy');
     document.body.removeChild(ta);
-    alert('撌脰?鋆賢?芾票蝪?);
+    alert('已複製到剪貼簿');
   }
 });
 
@@ -321,9 +305,9 @@ document.querySelectorAll('.tab').forEach(btn => {
 });
 
 on($('#save-branch'), 'click', saveBranch);
-on($('#save'), 'click', () => { save(); alert('撌脣摮?); });
+on($('#save'), 'click', () => { save(); alert('已儲存'); });
 on($('#clear'), 'click', () => {
-  if (confirm('蝣箏?皜?券嚗?)) {
+  if (confirm('確定清除全部？')) {
     items = [];
     save();
     renderItems();
@@ -333,7 +317,6 @@ on($('#clear'), 'click', () => {
 
 ['own-branch','own-points','own-xp'].forEach(id => on($('#'+id), 'input', () => { save(); updateSubtotal(); }));
 
-load();
 try {
   load();
   renderItems();
@@ -342,14 +325,3 @@ try {
 } catch (e) {
   console.error('Init error:', e);
 }
-
-on($('#add-item'), 'click', () => {
-  try {
-    items.push({ category: '', name: '', target: '', branch: '', points: 0, xp: 0 });
-    save();
-    renderItems();
-    updateSubtotal();
-  } catch (e) {
-    console.error('Add item error:', e);
-  }
-});
